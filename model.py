@@ -8,6 +8,9 @@ Created on Sun Apr 23 15:59:54 2023
 
 # !pip install deepface cmake dlib
 
+from PIL import Image
+from io import BytesIO
+import base64
 from deepface import DeepFace
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,7 +18,16 @@ import cv2
 
 # img = numpy array(BGR) or base64 or img_path
 
+def decodeImage(base64Img):
+    img = base64.b64decode(base64Img)
+    pil_image = Image.open(BytesIO(img))
+    return np.array(pil_image)
+
+
 def getRepresentations(img):
+    if(isinstance(img, bytes)):
+        img = decodeImage(img)
+
     obj = DeepFace.represent(
         img_path=img,
         model_name='Facenet',
@@ -60,11 +72,17 @@ def findSuspects(input_img, suspects_embeddings):
 
     # show bounding box around found suspects
 
-    # if input_img is a numpy array
-    if(isinstance(input_img, np.ndarray)):
-        img = input_img 
-        
-    # else convert to a numpy array
+    # if base64Img
+
+    if(isinstance(input_img, bytes)):
+        img = decodeImage(input_img)
+
+    # if numpy array
+
+    elif(isinstance(input_img, np.ndarray)):
+        img = input_img
+
+    # if path
     else:
         img = plt.imread(input_img)
 
@@ -87,9 +105,9 @@ sus_embeddings = []
 for sus_img in suspects:
     e = getSuspectEmbedding(sus_img)
     sus_embeddings.append({'id': sus_img, 'embedding': e})
-    
+
 input_img = '/home/avinash/Desktop/mini_project/test_img.jpeg'
-input_img = cv2.imread(input_img) 
+input_img = cv2.imread(input_img)
 results = findSuspects(input_img, sus_embeddings)
 
 plt.imshow(results['modified_img'])
@@ -99,3 +117,13 @@ results['found_suspects']
 
 ts = getRepresentations(input_img)
 len(ts)
+
+
+input_path = '/home/avinash/Desktop/mini_project/test_img.jpeg'
+
+with open(input_path, "rb") as image_file:
+    encoded_string = base64.b64encode(image_file.read())
+
+res = findSuspects(encoded_string, sus_embeddings)
+
+len(getRepresentations(encoded_string))
