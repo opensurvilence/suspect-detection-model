@@ -18,11 +18,15 @@ import cv2
 
 # img = numpy array(BGR) or base64 or img_path
 
+def encodeImage(img_path):
+    with open(img_path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+    return encoded_string   
+
 def decodeImage(base64Img):
     img = base64.b64decode(base64Img)
     pil_image = Image.open(BytesIO(img))
     return np.array(pil_image)
-
 
 def getRepresentations(img):
     if(isinstance(img, bytes)):
@@ -121,9 +125,15 @@ len(ts)
 
 input_path = '/home/avinash/Desktop/mini_project/test_img.jpeg'
 
-with open(input_path, "rb") as image_file:
-    encoded_string = base64.b64encode(image_file.read())
+# input_path = '/home/avinash/Desktop/mini_project/friends/group_photo.jpeg'
+
+encoded_string = encodeImage(input_path)
 
 res = findSuspects(encoded_string, sus_embeddings)
 
-len(getRepresentations(encoded_string))
+target_reps = getRepresentations(encoded_string)
+
+plt.imshow(res['modified_img'])
+plt.show()
+
+
