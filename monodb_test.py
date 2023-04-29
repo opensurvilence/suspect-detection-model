@@ -12,8 +12,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pymongo import MongoClient
 
-url = 'mongodb+srv://admin-avinash:EfkAWlTvjSxCQMBQ@cluster0.stfqxq6.mongodb.net/?retryWrites=true&w=majority'
-
 client = MongoClient(url)
 
 db = client.suspectsDB
